@@ -1,0 +1,88 @@
+import pygame
+import random
+
+# Initialize Pygame
+pygame.init()
+
+# Screen dimensions
+WIDTH, HEIGHT = 800, 400
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Cat Jump Game")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Clock and FPS
+clock = pygame.time.Clock()
+FPS = 60
+
+# Cat settings
+cat_width, cat_height = 50, 50
+cat_x = 100
+cat_y = HEIGHT - cat_height - 20
+cat_velocity = 0
+is_jumping = False
+
+# Obstacle settings
+obstacle_width, obstacle_height = 20, 50
+obstacle_x = WIDTH
+obstacle_y = HEIGHT - obstacle_height - 20
+obstacle_speed = 5
+
+# Score
+score = 0
+font = pygame.font.Font(None, 36)
+
+# Game loop
+running = True
+while running:
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+
+        # Handle jump
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_SPACE and not is_jumping:
+                is_jumping = True
+                cat_velocity = -15
+
+    # Cat movement
+    if is_jumping:
+        cat_velocity += 1  # Gravity effect
+        cat_y += cat_velocity
+        if cat_y >= HEIGHT - cat_height - 20:
+            cat_y = HEIGHT - cat_height - 20
+            is_jumping = False
+
+    # Obstacle movement
+    obstacle_x -= obstacle_speed
+    if obstacle_x + obstacle_width < 0:
+        obstacle_x = WIDTH
+        score += 1
+
+    # Check collision
+    if (cat_x < obstacle_x + obstacle_width and
+        cat_x + cat_width > obstacle_x and
+        cat_y + cat_height > obstacle_y):
+        print("Game Over!")
+        print(f"Final Score: {score}")
+        running = False
+
+    # Draw cat
+    pygame.draw.rect(screen, BLACK, (cat_x, cat_y, cat_width, cat_height))
+
+    # Draw obstacle
+    pygame.draw.rect(screen, RED, (obstacle_x, obstacle_y, obstacle_width, obstacle_height))
+
+    # Draw score
+    score_text = font.render(f"Score: {score}", True, BLACK)
+    screen.blit(score_text, (10, 10))
+
+    pygame.display.flip()
+    clock.tick(FPS)
+
+pygame.quit()
